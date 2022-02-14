@@ -1,6 +1,7 @@
 package com.endiluamba.bookservice.controller;
 
 import com.endiluamba.bookservice.model.Book;
+import com.endiluamba.bookservice.proxy.ExchangeProxy;
 import com.endiluamba.bookservice.repository.BookRepository;
 import com.endiluamba.bookservice.response.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,27 @@ public class BookController {
     @Autowired
     private BookRepository repository;
 
+    @Autowired
+    private ExchangeProxy proxy;
+
     @GetMapping(value = "/{id}/{currency}")
+    public Book findBook(
+            @PathVariable("id") Long id,
+            @PathVariable("currency") String currency
+    ) {
+        var book = repository.getById(id);
+        if (book == null) throw new RuntimeException("Book not found");
+
+        var exchange = proxy.getExchange(book.getPrice(), "USD", currency);
+
+        var port = environment.getProperty("local.server.port");
+        book.setEnvironment(port + " FEIGN");
+        book.setPrice(exchange.getConvertedValue());
+        return book;
+    }
+
+    //Consuming Exchange microsservice via RestTemplate
+    /*@GetMapping(value = "/{id}/{currency}")
     public Book findBook(
             @PathVariable("id") Long id,
             @PathVariable("currency") String currency
@@ -48,5 +69,5 @@ public class BookController {
         book.setEnvironment(port);
         book.setPrice(exchange.getConvertedValue());
         return book;
-    }
+    }*/
 }
