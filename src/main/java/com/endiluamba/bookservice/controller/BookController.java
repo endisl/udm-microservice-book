@@ -4,6 +4,8 @@ import com.endiluamba.bookservice.model.Book;
 import com.endiluamba.bookservice.proxy.ExchangeProxy;
 import com.endiluamba.bookservice.repository.BookRepository;
 import com.endiluamba.bookservice.response.Exchange;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 
+@Tag(name = "Book endpoint")
 @RestController
 @RequestMapping("book-service")
 public class BookController {
@@ -29,6 +32,7 @@ public class BookController {
     private ExchangeProxy proxy;
 
     @GetMapping(value = "/{id}/{currency}")
+    @Operation(summary = "Find a book by ID")
     public Book findBook(
             @PathVariable("id") Long id,
             @PathVariable("currency") String currency
